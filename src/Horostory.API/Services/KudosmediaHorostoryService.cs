@@ -1,6 +1,6 @@
 ﻿using AngleSharp;
-using AngleSharp.Html.Parser;
 using Horostory.API.Models;
+using System.Text.RegularExpressions;
 
 namespace Horostory.API.Services
 {
@@ -17,10 +17,14 @@ namespace Horostory.API.Services
                     .WithDefaultCookies();
 
             var context = BrowsingContext.New(config);
-
             var document = await context.OpenAsync(url);
 
             model.Sign = document.GetElementsByTagName("td")[1].GetElementsByTagName("b").FirstOrDefault().InnerHtml;
+
+            model.DateRange = document.GetElementsByTagName("td")[1].InnerHtml;
+
+            //TODO do it better
+            model.DateRange = Regex.Replace(model.DateRange, "<.*?>", String.Empty).Replace(model.Sign,"").Replace("\n\t\t\t\t\t\n\t\t\t\t\t","").Trim();
 
             model.CurrentDate = document.GetElementsByTagName("p").FirstOrDefault().InnerHtml.Replace("Daily Horoscope:", "").Trim();
 
